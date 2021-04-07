@@ -1,9 +1,0 @@
-texttable
-numpy
-matplotlib
-torch==1.6
-torchvision==0.7.0
-tqdm
-tensorboardX
-sklearn
-pyyaml

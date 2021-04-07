@@ -1,1 +1,0 @@
-We adopt 1-fold training strategy: choose one sequence as test set while other sequences as training set. Thus we can evaluate our performance on more data.
