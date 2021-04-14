@@ -76,8 +76,10 @@ class Point2PointLoss(nn.Module):
 
 # loss which affects place recognition performance
 def best_pos_distance(query, pos_vecs):
+    # print("query shape: ",query.shape)
     num_pos = pos_vecs.shape[1]
     query_copies = query.repeat(1, int(num_pos), 1)
+    # print("query_copies shape: ",query_copies.shape)
     diff = ((pos_vecs - query_copies) ** 2).sum(2)
     min_pos, _ = diff.min(1)
     max_pos, _ = diff.max(1)
@@ -101,6 +103,7 @@ def triplet_loss(q_vec, pos_vecs, neg_vecs, margin, use_min=False, lazy=False, i
 
     loss = margin + positive - ((neg_vecs - query_copies) ** 2).sum(2)
     loss = loss.clamp(min=0.0)
+    # print("........................................................clamp loss: ",loss)
     if lazy:
         triplet_loss = loss.max(1)[0]
     else:
@@ -111,7 +114,13 @@ def triplet_loss(q_vec, pos_vecs, neg_vecs, margin, use_min=False, lazy=False, i
         triplet_loss = triplet_loss.sum() / (num_hard_triplets + 1e-16)
     else:
         triplet_loss = triplet_loss.mean()
+    
+    # print("........................................................triplet loss: ",triplet_loss)
     return triplet_loss
+
+
+def triplet_loss_wrapper(q_vec, pos_vecs, neg_vecs, other_neg, m1, m2, use_min=False, lazy=False, ignore_zero_loss=False):
+    return triplet_loss(q_vec, pos_vecs, neg_vecs, m1, use_min, lazy, ignore_zero_loss)
 
 
 def quadruplet_loss(q_vec, pos_vecs, neg_vecs, other_neg, m1, m2, use_min=False, lazy=False, ignore_zero_loss=False):

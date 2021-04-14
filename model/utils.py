@@ -136,7 +136,7 @@ def random_dilation_encoding(x_sample, x, k, n):
      '''
     xyz_sample = x_sample[:,:,:3]  # 取3+C的前三个值
     xyz = x[:,:,:3]  # 取3+C的前三个值
-    feature = x[:,:,3:]  # 取3+C的前三个以后的值,即C
+    # feature = x[:,:,3:]  # 取3+C的后C个值,暂无
     '''
     获得knn个点的相对于中心的坐标值和索引,注意这里的knn是2k个,是膨胀过后的
     knn_idx: [B, S, 2K],
@@ -149,13 +149,13 @@ def random_dilation_encoding(x_sample, x, k, n):
     dilation_idx = knn_idx[:,:,rand_idx]  # [B, S, K]
     # 提取最终保留的knn点的原始坐标和特征: [B, S, K, 3] || [B, S, K, C]
     dilation_xyz = index_points(xyz, dilation_idx)
-    dilation_feature = index_points(feature, dilation_idx)
+    # dilation_feature = index_points(feature, dilation_idx)    暂无
     # [B, S, 3] --> [B, S, K, 3]，为了和dilation_xyz维度保持一致，便于后续运算
     xyz_expand = xyz_sample.unsqueeze(2).repeat(1,1,k,1)
     # 将dilation_xyz相对于随机采样候选关键点的相对坐标，距离以及这些knn出来的点的特征聚合，成为最终的dilation_group，排序为 距离，相对坐标，特征
     dilation_xyz_resi = dilation_xyz - xyz_expand  # [B, S, K, 3]
     dilation_xyz_dis = torch.norm(dilation_xyz_resi,dim=-1,keepdim=True)  # 在最后一个维度上求norm, 即sqrt(x^2+y^2+z^2), [B, S, K, 1]
     dilation_group = torch.cat((dilation_xyz_dis, dilation_xyz_resi),dim=-1)  # [B, S, K, 4]
-    dilation_group = torch.cat((dilation_group, dilation_feature), dim=-1)  # [B, S, K, 4+C]
+    # dilation_group = torch.cat((dilation_group, dilation_feature), dim=-1)  # [B, S, K, 4+C] 暂无
     dilation_group = dilation_group.permute(0,3,1,2)  # [B, 4+C, S, K]
     return dilation_group, dilation_xyz
